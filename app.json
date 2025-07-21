@@ -4,6 +4,7 @@
     "slug": "GloblRunningApp",
     "version": "1.0.0",
     "orientation": "portrait",
+    "icon": "./assets/GLOBL.Logo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true
     },
