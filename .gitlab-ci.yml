@@ -1,0 +1,12 @@
+stages:
+  - build
+  - test
+
+build:
+    script:
+      - echo "Skipping build for now"
+
+test: 
+  stage: test
+  script:
+    - echo "Skipping test for now"
