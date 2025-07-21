@@ -35,3 +35,6 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+
+# workspace
+GloblRunningApp.code-workspace
