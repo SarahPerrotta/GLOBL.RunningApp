@@ -1,23 +1,108 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, Image, SafeAreaView } from 'react-native';
 import { Button } from 'react-native-paper';
+import { StyleSheet, Dimensions } from 'react-native';
 
 export default function LandingScreen({ navigation }) {
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+    {/* Top Section */}
+    <View style={styles.header}>
       <Text style={styles.title}>GLOBL.</Text>
-      <Image source={require('../assets/GLOBL.Logo.png')} style={styles.logo} />
-      <Text style={styles.tagline}>RUN THE WORLD</Text>
-      <Button mode="contained" onPress={() => navigation.navigate('SignIn')} style={styles.button}>Sign In</Button>
-      <Button mode="outlined" onPress={() => navigation.navigate('CreateAccount')} style={styles.button}>Create account</Button>
     </View>
+    
+    {/* Middle Content */}
+    <View style={styles.middle}>
+      <Image source={require('../assets/TransparentGloblLogo.png')} style={styles.logo} resizeMode="contain" />
+     <Text style={styles.tagline}>RUN THE WORLD</Text>
+    </View>
+
+     {/* Bottom Buttons */}
+     <View style={styles.bottom}>
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate('SignIn')}
+          style={[styles.button, styles.signInButton]}
+          labelStyle={styles.signInText}
+          contentStyle={styles.buttonContent}
+        >
+          Sign In
+        </Button>
+
+       <Button
+         mode="outlined"
+         onPress={() => navigation.navigate('CreateAccount')}
+         style={[styles.button, styles.createAccountButton]}
+         labelStyle={styles.createAccountText}
+          contentStyle={styles.buttonContent}
+        >
+         Create account
+       </Button>
+      </View>
+    </SafeAreaView>
   );
 }
 
+const { width } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FF0000', alignItems: 'center', justifyContent: 'center' },
-  title: { fontSize: 48, color: '#FFF', fontWeight: 'bold' },
-  logo: { width: 150, height: 150, marginVertical: 20 },
-  tagline: { fontSize: 24, color: '#FFF', marginBottom: 50 },
-  button: { marginVertical: 10, width: 200 }
+  container: {
+    flex: 1,
+    backgroundColor: '#DE1E26',
+    paddingHorizontal: 30,
+  },
+  header: {
+    alignItems: 'center',
+    marginTop: 20,
+  },
+  title: {
+    fontSize: 48,
+    color: '#FFF',
+    fontWeight: 'bold',
+  },
+  middle: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logo: {
+    width: 300, // adjust as needed
+    height: 300,
+    marginBottom: -20,
+  },
+  tagline: {
+    fontSize: 26,
+    color: '#FFF',
+    fontWeight: '700',
+    marginTop: '0',
+  },
+  bottom: {
+    alignItems: 'center',
+    marginBottom: 40,
+  },
+  button: {
+    width: 240,
+    borderRadius: 30,
+    marginVertical: 10,
+  },
+  buttonContent: {
+    height: 50,
+  },
+  signInButton: {
+    backgroundColor: '#000',
+  },
+  signInText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  createAccountButton: {
+    borderColor: '#FFF',
+    borderWidth: 2,
+  },
+  createAccountText: {
+    color: '#FFF',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 });
