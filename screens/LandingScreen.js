@@ -20,7 +20,7 @@ export default function LandingScreen({ navigation }) {
      {/* Bottom Buttons */}
      <View style={styles.bottom}>
         <Button
-          mode="contained"
+          mode="contained" 
           onPress={() => navigation.navigate('SignIn')}
           style={[styles.button, styles.signInButton]}
           labelStyle={styles.signInText}
@@ -34,7 +34,7 @@ export default function LandingScreen({ navigation }) {
          onPress={() => navigation.navigate('CreateAccount')}
          style={[styles.button, styles.createAccountButton]}
          labelStyle={styles.createAccountText}
-          contentStyle={styles.buttonContent}
+         contentStyle={styles.buttonContent}
         >
          Create account
        </Button>
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   logo: {
-    width: 300, // adjust as needed
+    width: 300, 
     height: 300,
     marginBottom: -20,
   },
