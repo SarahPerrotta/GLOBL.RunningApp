@@ -6,6 +6,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import LandingScreen from './screens/LandingScreen';
 import SignInScreen from './screens/SignInScreen';
 import CreateAccountScreen from './screens/CreateAccountScreen';
+import GlobalHeatMapScreen from './screens/MainGlobalHeatMapScreen';
 
 
 const Stack = createStackNavigator();
@@ -18,6 +19,7 @@ export default function App() {
           <Stack.Screen name="Landing" component={LandingScreen} />
           <Stack.Screen name="SignIn" component={SignInScreen} />
           <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
+          <Stack.Screen name="Main" component={GlobalHeatMapScreen} /> 
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
