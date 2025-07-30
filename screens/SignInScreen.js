@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Image } from 'react-native';
+import { View, Image, StyleSheet, SafeAreaView, ScrollView, TouchableOpacity} from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { signInWithEmailAndPassword, sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase';
@@ -84,8 +84,8 @@ export default function SignInScreen({ navigation }) {
        theme={{ colors: { primary: '#000' } }}
        right={
         <TextInput.Icon
-        icon={showPassword ? 'eye-off' : 'eye'} // password still doesnt show
-        onPress={() => setShowPassword(!showPassword)}
+         icon={showPassword ? 'eye-off' : 'eye'}
+         onPress={() => setShowPassword(!showPassword)}
         />
       }
     />
