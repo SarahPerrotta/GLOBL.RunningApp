@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
-    marginTop: -40, // ← move all content up
+    marginTop: -40, //  move all content up
   },
   title: {
     fontSize: 42,
