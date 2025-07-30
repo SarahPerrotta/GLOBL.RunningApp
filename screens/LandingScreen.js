@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 48,
     color: '#FFF',
-    fontWeight: 'bold',
+    fontWeight: '600',
   },
   middle: {
     flex: 1,
