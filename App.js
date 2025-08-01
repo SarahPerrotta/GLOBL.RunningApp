@@ -19,7 +19,7 @@ export default function App() {
           <Stack.Screen name="Landing" component={LandingScreen} />
           <Stack.Screen name="SignIn" component={SignInScreen} />
           <Stack.Screen name="CreateAccount" component={CreateAccountScreen} />
-          <Stack.Screen name="Main" component={GlobalHeatMapScreen} /> 
+          <Stack.Screen name="Main" component={MainGlobalHeatMapScreen} /> 
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
