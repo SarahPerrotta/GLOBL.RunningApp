@@ -26,7 +26,8 @@
     "react-native-web": "^0.20.0",
     "react-native-webview": "13.13.5",
     "expo-asset": "~11.1.7",
-    "expo-file-system": "~18.1.11"
+    "expo-file-system": "~18.1.11",
+    "expo-location": "~18.1.6"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
