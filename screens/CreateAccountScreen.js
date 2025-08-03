@@ -44,7 +44,7 @@ return (
         style={{ flex: 1 }}
         keyboardVerticalOffset={80} 
       >
-         {/* ✅ Logo behind everything */}
+         {/* Logo behind everything */}
         <Image
          source={require('../assets/BackgroundLogo.png')}
          style={styles.fadedLogo}
