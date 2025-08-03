@@ -1,50 +1,76 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <meta charset="UTF-8" />
-    <title>Globe</title>
-    <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        background-color: black;
-      }
-      canvas {
-        width: 100%;
-        height: 100%;
-        display: block;
-      }
-    </style>
-  </head>
-  <body>
-    <script src="https://unpkg.com/three"></script>
-    <script src="https://unpkg.com/three-globe"></script>
-    <script>
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(window.innerWidth, window.innerHeight);
-      document.body.appendChild(renderer.domElement);
+<WebView
+  originWhitelist={['*']}
+  source={{
+    html: `
+      <!DOCTYPE html>
+      <html>
+        <head>
+          <meta charset="UTF-8" />
+          <title>Globe</title>
+          <style>
+            html, body {
+              margin: 0;
+              padding: 0;
+              overflow: hidden;
+              background-color: #DE1E26;
+            }
+            canvas {
+              width: 100%;
+              height: 100%;
+              display: block;
+            }
+            #loading {
+              position: absolute;
+              color: white;
+              width: 100%;
+              text-align: center;
+              font-family: 'Poppins', sans-serif;
+              top: 40%;
+              font-size: 55px;
+              font-weight: 100;
+              z-index: 9999;
+            }
+          </style>
+        </head>
+        <body>
+          <div id="loading">Loading GLOBL. Heatmap...</div>
 
-      const globe = new ThreeGlobe()
-        .globeImageUrl('//unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
-        .pointsData([
-          { lat: 51.5, lng: -0.12, size: 0.4, color: 'red' }, // London
-          { lat: 40.7, lng: -74, size: 0.4, color: 'orange' }, // NYC
-        ])
-        .pointAltitude('size')
-        .pointColor('color');
+          <script src="https://unpkg.com/three"></script>
+          <script src="https://unpkg.com/three-globe"></script>
+          <script>
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+            document.getElementById('loading').style.display = 'none';
 
-      scene.add(globe);
-      camera.position.z = 250;
+            const globe = new ThreeGlobe()
+              .globeImageUrl('https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg')
+              .pointsData([
+                { lat: 51.5, lng: -0.12, size: 0.4, color: 'red' },
+                { lat: 40.7, lng: -74, size: 0.4, color: 'orange' }
+              ])
+              .pointAltitude('size')
+              .pointColor('color');
 
-      const animate = function () {
-        requestAnimationFrame(animate);
-        globe.rotation.y += 0.001;
-        renderer.render(scene, camera);
-      };
-      animate();
-    </script>
-  </body>
-</html>
+            scene.add(globe);
+            camera.position.z = 250;
+
+            function animate() {
+              requestAnimationFrame(animate);
+              globe.rotation.y += 0.001;
+              renderer.render(scene, camera);
+            }
+
+            animate();
+          </script>
+        </body>
+      </html>
+    `
+  }}
+  javaScriptEnabled={true}
+  domStorageEnabled={true}
+  style={{ flex: 1 }}
+/>
+

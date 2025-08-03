@@ -4,7 +4,7 @@
     "slug": "GloblRunningApp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/TransparentGloblLogo.png", 
+    "icon": "./assets/TransparentGloblLogo.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
@@ -15,9 +15,9 @@
       "package": "com.globlrunningapp",
       "edgeToEdgeEnabled": true
     },
-    "extra": {
-   }
+    "extra": {},
+    "plugins": [
+      "expo-asset"
+    ]
   }
 }
-
-  
