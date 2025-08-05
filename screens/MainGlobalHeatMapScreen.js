@@ -192,10 +192,10 @@ const [html, setHtml] = useState('<div>Loading assets...</div>');
           <Icon name="public" size={24} color="red" />
           <Text style={styles.navTextActive}>Global Heat Map</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Leaderboard')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('LeaderBoard', { initialTab: 'leaders' })}>
           <Icon name="emoji-events" size={24} color="gray" />
           <Text style={styles.navText}>Leaderboard</Text>
-        </TouchableOpacity>
+          </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Navigation')}>
           <Icon name="menu" size={24} color="gray" />
           <Text style={styles.navText}>Navigation</Text>
