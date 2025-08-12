@@ -196,7 +196,7 @@ const [html, setHtml] = useState('<div>Loading assets...</div>');
           <Icon name="emoji-events" size={24} color="gray" />
           <Text style={styles.navText}>Leaderboard</Text>
           </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Navigation')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('NavigationHub')}>
           <Icon name="menu" size={24} color="gray" />
           <Text style={styles.navText}>Navigation</Text>
         </TouchableOpacity>
