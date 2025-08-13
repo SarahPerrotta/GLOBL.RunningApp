@@ -11,27 +11,26 @@ export default function Zone2({ navigation }) {
         {/* Back button row */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
           <Pressable
-            onPress={() => navigation.goBack()} // <- returns to ArticlesListScreen
+            onPress={() => navigation.goBack()} //  routes back to ArticlesListScreen
             style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
             accessibilityRole="button"
-            accessibilityLabel="Go back"
-          >
+            accessibilityLabel="Go back" >
             <Ionicons name="chevron-back" size={22} color="#DE1E26" />
           </Pressable>
           <View style={{ flex: 1 }} />
         </View>
 
-        {/* Hero image */}
+        {/* article image */}
         <Image
           source={require('../../assets/Vo2Max.jpeg')}
           style={{ width: '100%', height: 180, borderRadius: 12, marginBottom: 12 }}
         />
 
-        {/* Title */}
+        {/* title */}
         <Text style={styles.title}>Understanding Zone 2 Training</Text>
         <View style={styles.rule} />
 
-        {/* Content */}
+        {/* article content */}
         <Text style={styles.p}>
   Zone 2 running is a low-intensity training method that improves aerobic fitness, fat metabolism, and endurance. 
   It involves keeping your heart rate in a specific range so you can run at a comfortable pace while building long-term stamina.

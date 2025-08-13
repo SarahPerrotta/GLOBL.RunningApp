@@ -11,7 +11,7 @@ export default function Injury({ navigation }) {
         {/* Back button row */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
           <Pressable
-            onPress={() => navigation.goBack()} // <- returns to ArticlesListScreen
+            onPress={() => navigation.goBack()} // routes back to ArticlesListScreen
             style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
             accessibilityRole="button"
             accessibilityLabel="Go back"
@@ -21,7 +21,7 @@ export default function Injury({ navigation }) {
           <View style={{ flex: 1 }} />
         </View>
 
-        {/* Hero image */}
+        {/* image */}
         <Image
           source={require('../../assets/ManRunning.jpeg')}
           style={{ width: '100%', height: 180, borderRadius: 12, marginBottom: 12 }}
@@ -31,7 +31,7 @@ export default function Injury({ navigation }) {
         <Text style={styles.title}>Injury Prevention</Text>
         <View style={styles.rule} />
 
-        {/* Content */}
+        {/* Article Content */}
         <Text style={styles.p}>
   Running is one of the most accessible and effective forms of exercise, but without proper care it can lead to injuries like shin splints, runner’s knee, or Achilles tendonitis. 
   Staying consistent, building strength, and progressing gradually are the keys to remaining injury-free.
@@ -61,7 +61,6 @@ export default function Injury({ navigation }) {
   <Text style={styles.bold}>5. Listen to your body: </Text>
   Address any discomfort early by reducing training load or resting to prevent small issues from becoming serious injuries.
 </Text>
-
         <View style={{ height: 16 }} />
       </ScrollView>
     </SafeAreaView>

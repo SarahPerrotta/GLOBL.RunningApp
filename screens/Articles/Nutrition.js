@@ -11,11 +11,10 @@ export default function Nutrition({ navigation }) {
         {/* Back button row */}
         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 8 }}>
           <Pressable
-            onPress={() => navigation.goBack()} // <- returns to ArticlesListScreen
+            onPress={() => navigation.goBack()} // routes back to ArticlesListScreen
             style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
             accessibilityRole="button"
-            accessibilityLabel="Go back"
-          >
+            accessibilityLabel="Go back">
             <Ionicons name="chevron-back" size={22} color="#DE1E26" />
           </Pressable>
           <View style={{ flex: 1 }} />
@@ -31,7 +30,7 @@ export default function Nutrition({ navigation }) {
         <Text style={styles.title}>Nutrition for Runners</Text>
         <View style={styles.rule} />
 
-        {/* Content */}
+        {/* Article Content */}
         <Text style={styles.p}>
   Proper nutrition fuels your runs, aids recovery, and helps you perform at your best. 
   Eating the right foods before and after training ensures you have the energy to run and the nutrients to rebuild your muscles.

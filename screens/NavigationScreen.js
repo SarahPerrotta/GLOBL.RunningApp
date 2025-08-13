@@ -21,7 +21,7 @@ export default function NavigationScreen({ navigation }) {
       <View style={styles.header}>
         {/* Back button */}
         <Pressable
-          onPress={() => navigation.navigate('Main')}  // <- go to Global Heat Map
+          onPress={() => navigation.navigate('Main')}  // routes back to Global Heat Map
           style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
           accessibilityRole="button"
           accessibilityLabel="Go back"
@@ -32,11 +32,11 @@ export default function NavigationScreen({ navigation }) {
         {/* Screen title */}
         <Text style={styles.title}>Navigation</Text>
 
-        {/* Spacer to balance header layout */}
+        {/* spacer to balance header layout */}
         <View style={styles.headerSpacer} />
       </View>
 
-      {/* Main menu list */}
+      {/* main menu list */}
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
