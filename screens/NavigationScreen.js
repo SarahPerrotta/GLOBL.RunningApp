@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text } from 'react-native-paper';
-import { Ionicons } from '@expo/vector-icons';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 // Navigation menu items and their target routes - pages to be added 
 const MENU = [
@@ -21,7 +21,7 @@ export default function NavigationScreen({ navigation }) {
       <View style={styles.header}>
         {/* Back button */}
         <Pressable
-          onPress={() => navigation.goBack()}
+          onPress={() => navigation.navigate('Main')}  // <- go to Global Heat Map
           style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
           accessibilityRole="button"
           accessibilityLabel="Go back"
@@ -44,7 +44,7 @@ export default function NavigationScreen({ navigation }) {
         {MENU.map(({ label, route }) => (
           <Pressable
             key={label}
-            onPress={() => navigation.navigate(route)}
+            onPress={() => navigation.navigate(route)} 
             style={({ pressed }) => [styles.menuItem, pressed && styles.pressed]}
             accessibilityRole="button"
             accessibilityLabel={label}
