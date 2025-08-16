@@ -6,10 +6,10 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 // Navigation menu items and their target routes - pages to be added 
 const MENU = [
   { label: 'Pinned Trails', route: 'PinnedTrails' },
-  { label: 'Run Clubs', route: 'RunClubs' },
-  { label: 'Parkrun Events', route: 'Parkrun' },
+  { label: 'Run Club', route: 'RunClub' },
+  { label: 'Parkrun Event', route: 'ParkRun' },
   { label: 'Articles', route: 'Articles' },
-  { label: 'Friend Suggestions', route: 'Friends' },
+  //{ label: 'Friend Suggestions', route: 'Friends' }, 
   { label: 'Settings', route: 'Settings' },
 ];
 
