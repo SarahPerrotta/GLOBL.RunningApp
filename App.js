@@ -15,6 +15,7 @@ import ArticlesListScreen from './screens/Articles/ArticlesListScreen';
 import Injury from './screens/Articles/Injury';
 import Nutrition from './screens/Articles/Nutrition';
 import Zone2 from './screens/Articles/Zone2';
+import Settings from './screens/SettingsScreen';
 
 
 const Stack = createStackNavigator();
@@ -35,7 +36,8 @@ export default function App() {
           <Stack.Screen name="Articles" component={ArticlesListScreen} options={{ headerShown: false }} />
           <Stack.Screen name="ArticleInjury" component={Injury} options={{ headerShown: false }} />
           <Stack.Screen name="ArticleNutrition" component={Nutrition} options={{ headerShown: false }} />
-           <Stack.Screen name="ArticleZone2" component={Zone2} options={{ headerShown: false }} />
+          <Stack.Screen name="ArticleZone2" component={Zone2} options={{ headerShown: false }} />
+          <Stack.Screen name="Settings" component={Settings} options={{ headerShown: false}} />
         </Stack.Navigator>
       </NavigationContainer>
     </PaperProvider>
