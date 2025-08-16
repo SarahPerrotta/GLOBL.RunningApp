@@ -28,7 +28,8 @@
     "expo-asset": "~11.1.7",
     "expo-file-system": "~18.1.11",
     "expo-location": "~18.1.6",
-    "@expo/vector-icons": "^14.1.0"
+    "@expo/vector-icons": "^14.1.0",
+    "@react-native-picker/picker": "2.11.1"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"
