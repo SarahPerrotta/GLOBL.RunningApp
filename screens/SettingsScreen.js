@@ -165,30 +165,6 @@ export default function SettingsScreen({ navigation }) {
 
         <View style={{ height: 12 }} />
       </ScrollView>
-
-      {/* Bottom Navigation */}
-      <View style={styles.bottomNav}>
-        <Pressable style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
-          <Ionicons name="person-outline" size={22} color={COLORS.dark} />
-          <Text style={styles.navLabel}>Profile</Text>
-        </Pressable>
-        <Pressable style={styles.navItem} onPress={() => navigation.navigate('CurrentLocation')}>
-          <Ionicons name="location-outline" size={22} color={COLORS.dark} />
-          <Text style={styles.navLabel}>Pinned Sites</Text>
-        </Pressable>
-        <Pressable style={styles.navItem} onPress={() => navigation.navigate('Main')}>
-          <Ionicons name="globe-outline" size={22} color={COLORS.brand} />
-          <Text style={[styles.navLabel, { color: COLORS.brand }]}>Global Heat Map</Text>
-        </Pressable>
-        <Pressable style={styles.navItem} onPress={() => navigation.navigate('LeaderBoard', { initialTab: 'leaders' })}>
-          <Ionicons name="trophy-outline" size={22} color={COLORS.dark} />
-          <Text style={styles.navLabel}>Leaderboard</Text>
-        </Pressable>
-        <Pressable style={styles.navItem} onPress={() => navigation.navigate('NavigationHub')}>
-          <Ionicons name="menu-outline" size={22} color={COLORS.dark} />
-          <Text style={styles.navLabel}>Navigation</Text>
-        </Pressable>
-      </View>
     </SafeAreaView>
   );
 }
@@ -257,16 +233,4 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   signOutText: { fontSize: 18, fontWeight: '700', color: COLORS.brand },
-
-  /* bottom nav */
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: COLORS.white,
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-  },
-  navItem: { alignItems: 'center' },
-  navLabel: { fontSize: 10, color: COLORS.dark, marginTop: 2 },
 });

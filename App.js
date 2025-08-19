@@ -1,5 +1,6 @@
 import * as React from 'react';
-import { Provider as PaperProvider } from 'react-native-paper';
+import 'react-native-gesture-handler';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
@@ -19,13 +20,15 @@ import Settings from './screens/SettingsScreen';
 import RunClub from './screens/RunClubScreen';
 import ParkRun from './screens/ParkRunScreen';
 import PinnedTrails from './screens/PinnedTrailsScreen';
+import FriendSuggestionsScreen from './screens/FriendSuggestionsScreen';
+
 
 
 const Stack = createStackNavigator();
 
 export default function App() {
   return (
-    <PaperProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Landing">
           <Stack.Screen name="Landing" component={LandingScreen} options={{ headerShown: false }}/>
@@ -44,8 +47,9 @@ export default function App() {
           <Stack.Screen name="RunClub" component={RunClub} options={{ headerShown: false}} />
           <Stack.Screen name="ParkRun" component={ParkRun} options={{ headerShown: false}} />
           <Stack.Screen name="PinnedTrails" component={PinnedTrails} options={{ headerShown: false}} />
+          <Stack.Screen name="Friends" component={FriendSuggestionsScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
-    </PaperProvider>
+      </GestureHandlerRootView>
   );
 }
