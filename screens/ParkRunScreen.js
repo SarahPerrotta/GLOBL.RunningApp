@@ -59,13 +59,14 @@ export default function ParkRunScreen({ navigation }) {
         contentContainerStyle={styles.chipsRow}
       >
         {PARKRUN_EVENTS.map(ev => {
-          const active = ev.id === selected.id;
+          const active = ev.id === selected.id; // highlight the currently selected event
           return (
             <Pressable
               key={ev.id}
-              onPress={() => setSelected(ev)}
+              onPress={() => setSelected(ev)} // update which event is selected
               style={[styles.chip, active && styles.chipActive]}
             >
+              {/* Event name shown in the chip, cut off if it overflows */}
               <Text style={[styles.chipLabel, active && styles.chipLabelActive]} numberOfLines={1}>
                 {ev.name}
               </Text>
@@ -79,7 +80,7 @@ export default function ParkRunScreen({ navigation }) {
         <Text style={styles.infoText}>{selected.desc}</Text>
       </View>
 
-      {/* map card */}
+      {/* map card showing the selected event’s location */}
       <View style={[styles.mapWrap, { height: MAP_HEIGHT }]}>
         <MapView
           style={StyleSheet.absoluteFill}

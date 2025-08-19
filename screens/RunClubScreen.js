@@ -54,7 +54,7 @@ export default function RunClubScreen({ navigation }) {
       <View style={styles.mapWrap}>
         <MapView
           style={StyleSheet.absoluteFill}
-          initialRegion={{
+          initialRegion={{ 
             latitude: 55.8642,
             longitude: -4.2518,
             latitudeDelta: 0.25,

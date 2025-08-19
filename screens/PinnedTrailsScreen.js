@@ -2,43 +2,53 @@ import React, { useRef, useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, SafeAreaView, Pressable, Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-const { width } = Dimensions.get('window');
-const CARD_H_PADDING = 16;
-const CARD_WIDTH = width - CARD_H_PADDING * 2;
+const { width } = Dimensions.get('window'); // Get the device screen width
+const CARD_H_PADDING = 16;                  // horizontal padding for each card (space on left + right)
+const CARD_WIDTH = width - CARD_H_PADDING * 2; // Card width = full screen width minus the side padding
 
-// Card component for each trail
+// Card component for each trail, scroll through images horizontally
+// array of image sources for the carousel
 function TrailCard({ title, subtitle, images = [] }) {
+ // Keep a reference to the horizontal ScrollView so we can imperatively scroll it
   const scrollRef = useRef(null);
+  // Track which image the user is currently on (0-based index)
   const [index, setIndex] = useState(0);
-
+ // Programmatically jump to a particular image
   const goTo = (i) => {
+    //prevent crashes - if the scrollthrow isnt mounted yet do nothing.
     if (!scrollRef.current) return;
-    const clamped = Math.max(0, Math.min(i, images.length - 1));
+    const clamped = Math.max(0, Math.min(i, images.length - 1)); // Clamp i so it's always between 0 and the last image index
+    // Scroll to the card’s x-offset (CARD_WIDTH must equal card width for snapping, more natural flow)
     scrollRef.current.scrollTo({ x: clamped * CARD_WIDTH, animated: true });
+    // Update local state so any UI that depends on the current index stays in sync
     setIndex(clamped);
   };
-
+  // When the user finishes a swipe (the momentum stops), work out which card we're on
   const onMomentumEnd = (e) => {
+    // Work out which card we’re on by dividing scroll position by card width
     const newIndex = Math.round(e.nativeEvent.contentOffset.x / CARD_WIDTH);
+    // Store it so indicators / buttons / state stay consistent with the scroll position
     setIndex(newIndex);
   };
 
   return (
     <View style={styles.card}>
+      {/* horizontally swipeable image carousel; always stops aligned to a full card */}
       <ScrollView
         ref={scrollRef}
         horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={onMomentumEnd}
+        pagingEnabled // scrolls one “page” (card) at a time
+        showsHorizontalScrollIndicator={false} // hide the default scrollbar
+        onMomentumScrollEnd={onMomentumEnd} // update index when swipe settles
         style={{ width: CARD_WIDTH, borderTopLeftRadius: 16, borderTopRightRadius: 16 }}
       >
+        {/* Render each image at fixed CARD_WIDTH so alignment stays clean */}
         {images.map((src, i) => (
           <Image
             key={i}
             source={src}
             style={{ width: CARD_WIDTH, height: 180, borderTopLeftRadius: 16, borderTopRightRadius: 16 }}
-            resizeMode="cover"
+            resizeMode="cover" // fill nicely without distortion
           />
         ))}
       </ScrollView>
@@ -48,10 +58,12 @@ function TrailCard({ title, subtitle, images = [] }) {
         {images.map((_, i) => (
           <Pressable
             key={i}
-            onPress={() => goTo(i)}
+            onPress={() => goTo(i)}  // jump to the tapped segment
             style={[styles.segment, index === i && styles.segmentActive]}
           >
+            {/* Dot indicator for the active segment */}
             <View style={[styles.dot, index === i && styles.dotActive]} />
+            {/* Label switches style when active */}
             <Text style={[styles.segmentLabel, index === i && styles.segmentLabelActive]}>
               {i === 0 ? 'Scenary' : 'Trail View'}
             </Text>
@@ -68,11 +80,11 @@ function TrailCard({ title, subtitle, images = [] }) {
     </View>
   );
 }
-
+// Screen for showing the user’s pinned trails
 export default function PinnedTrailsScreen({ navigation }) {
     return (
       <SafeAreaView style={styles.container}>
-        {/* Header with back button */}
+        {/* Header with back button and spacer for alignment */}
         <View style={styles.header}>
           <Pressable
             onPress={() => navigation.goBack()}
@@ -81,8 +93,9 @@ export default function PinnedTrailsScreen({ navigation }) {
           >
             <Ionicons name="chevron-back" size={22} color="#DE1E26" />
           </Pressable>
+          {/* Centered screen title */}
           <Text style={styles.headerTitle}>Pinned Trails</Text>
-          <View style={{ width: 40 }} /> {/* spacer */}
+          <View style={{ width: 40 }} /> {/* spacer on the right to balance out the back buttom width */}
         </View>
 
       {/* Subtitle */}
