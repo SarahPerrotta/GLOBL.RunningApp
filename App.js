@@ -17,7 +17,11 @@ import Injury from './screens/Articles/Injury';
 import Nutrition from './screens/Articles/Nutrition';
 import Zone2 from './screens/Articles/Zone2';
 import Settings from './screens/SettingsScreen';
+import RunClub from './screens/RunClubScreen';
+import ParkRun from './screens/ParkRunScreen';
+import PinnedTrails from './screens/PinnedTrailsScreen';
 import FriendSuggestionsScreen from './screens/FriendSuggestionsScreen';
+
 
 
 const Stack = createStackNavigator();
@@ -40,6 +44,9 @@ export default function App() {
           <Stack.Screen name="ArticleNutrition" component={Nutrition} options={{ headerShown: false }} />
           <Stack.Screen name="ArticleZone2" component={Zone2} options={{ headerShown: false }} />
           <Stack.Screen name="Settings" component={Settings} options={{ headerShown: false}} />
+          <Stack.Screen name="RunClub" component={RunClub} options={{ headerShown: false}} />
+          <Stack.Screen name="ParkRun" component={ParkRun} options={{ headerShown: false}} />
+          <Stack.Screen name="PinnedTrails" component={PinnedTrails} options={{ headerShown: false}} />
           <Stack.Screen name="Friends" component={FriendSuggestionsScreen} options={{ headerShown: false }} />
         </Stack.Navigator>
       </NavigationContainer>
