@@ -16,17 +16,16 @@ const firebaseConfig = {
   appId: "1:662968877032:ios:9a251433202cc3dd5c6e5d"
 };
 
-// ✅ Only initialize app once
+// only initialising app once 
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
 
-// ✅ Only initialize auth once (fallback to getAuth if already initialized)
 let auth;
 try {
   auth = initializeAuth(app, {
     persistence: getReactNativePersistence(AsyncStorage),
   });
 } catch (error) {
-  auth = getAuth(app); // fallback if already initialized
+  auth = getAuth(app); // fallback if already initialised
 }
 
 export { auth };
