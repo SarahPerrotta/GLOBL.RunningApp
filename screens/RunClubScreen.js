@@ -4,6 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import MapView from 'react-native-maps';
 
 const RED = '#DE1E26';
+const BASE = 'https://globl-runningapp.onrender.com';
 
 // mock content data 
 const PINNED_CLUB_LABEL = 'Pinned RunClub : West end, Glasgow';
