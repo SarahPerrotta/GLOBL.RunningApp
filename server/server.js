@@ -13,6 +13,22 @@ app.get("/", (_req, res) => {
   res.send("GLOBL API is running, try /api/parkruns or /api/runclubs");
 });
 
+// Debug (shows what files the server sees)
+app.get("/debug", (_req, res) => {
+  const pr = path.join(DATA_DIR, "parkrun_uk.json");
+  const rc = path.join(DATA_DIR, "runclubs_uk.json");
+  res.json({
+    __dirname,
+    dataDir: DATA_DIR,
+    exists: {
+      dataDir: fs.existsSync(DATA_DIR),
+      parkrun_uk_json: fs.existsSync(pr),
+      runclubs_uk_json: fs.existsSync(rc),
+    },
+    paths: { parkrun: pr, runclubs: rc },
+  });
+});
+
 // ParkRun endpoint
 app.get("/api/parkruns", (req, res) => {
   try {
@@ -33,26 +49,6 @@ app.get("/api/runclubs", (req, res) => {
   console.error("Error reading runclub data:", err);
   res.status(500).json({ error: "Failed to read runclub data" });
 }
-});
-
-// --- DEBUG: show where the server stands and whether data files exist
-app.get("/debug", (_req, res) => {
-  const dataDir = path.join(__dirname, "data");
-  const prPath = path.join(dataDir, "parkrun_uk.json");
-  const rcPath = path.join(dataDir, "runclubs_uk.json");
-  const info = {
-    cwd: process.cwd(),
-    __dirname,
-    dataDir,
-    parkrunPath: prPath,
-    runclubsPath: rcPath,
-    exists: {
-      dataDir: fs.existsSync(dataDir),
-      parkrun_uk_json: fs.existsSync(prPath),
-      runclubs_uk_json: fs.existsSync(rcPath),
-    },
-  };
-  res.json(info);
 });
 
 const PORT = process.env.PORT || 5000;
