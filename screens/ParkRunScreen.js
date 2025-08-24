@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable, Image, SafeAreaView, ScrollView, Dim
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MapView, { Marker } from 'react-native-maps';
 
+const BASE = 'https://globl-runningapp.onrender.com';
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const RED = '#DE1E26';
 const MAP_HEIGHT = Math.min(520, Math.max(360, SCREEN_HEIGHT * 0.55)); // size of map to be focal point of screen
