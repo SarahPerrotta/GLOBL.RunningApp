@@ -35,6 +35,26 @@ app.get("/api/runclubs", (req, res) => {
 }
 });
 
+// --- DEBUG: show where the server stands and whether data files exist
+app.get("/debug", (_req, res) => {
+  const dataDir = path.join(__dirname, "data");
+  const prPath = path.join(dataDir, "parkrun_uk.json");
+  const rcPath = path.join(dataDir, "runclubs_uk.json");
+  const info = {
+    cwd: process.cwd(),
+    __dirname,
+    dataDir,
+    parkrunPath: prPath,
+    runclubsPath: rcPath,
+    exists: {
+      dataDir: fs.existsSync(dataDir),
+      parkrun_uk_json: fs.existsSync(prPath),
+      runclubs_uk_json: fs.existsSync(rcPath),
+    },
+  };
+  res.json(info);
+});
+
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on ${PORT}`);
