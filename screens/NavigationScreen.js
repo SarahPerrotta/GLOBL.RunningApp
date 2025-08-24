@@ -3,13 +3,13 @@ import { View, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { Text } from 'react-native-paper';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 
-// Navigation menu items and their target routes - pages to be added 
+// Navigation menu items and their target routes  
 const MENU = [
   { label: 'Pinned Trails', route: 'PinnedTrails' },
   { label: 'Run Club', route: 'RunClub' },
   { label: 'Parkrun Event', route: 'ParkRun' },
   { label: 'Articles', route: 'Articles' },
-  //{ label: 'Friend Suggestions', route: 'Friends' }, 
+  { label: 'Friend Suggestions', route: 'Friends' }, 
   { label: 'Settings', route: 'Settings' },
 ];
 
