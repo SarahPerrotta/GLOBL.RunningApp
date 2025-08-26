@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { View, Image, SafeAreaView, StyleSheet, ScrollView, KeyboardAvoidingView, Platform } from 'react-native';
 import { TextInput, Button, Text } from 'react-native-paper';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase';
+import { auth, db} from '../firebase';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore'; 
 
 export default function CreateAccountScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -13,11 +14,27 @@ export default function CreateAccountScreen({ navigation }) {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleCreateAccount = async () => {
+    setError('');
     if (password.length < 8) return setError('Password must be 8 characters');
     if (password !== confirmPassword) return setError('Passwords do not match');
+
     try {
-      await createUserWithEmailAndPassword(auth, email.trim(), password);
-      navigation.navigate('Main');
+      // 1) Create the Firebase Auth user
+      const cred = await createUserWithEmailAndPassword(auth, email.trim(), password);
+
+      // 2) Seed their Firestore profile (one-time)
+      await setDoc(doc(db, 'users', cred.user.uid), {
+        email: cred.user.email,
+        firstName: null,
+        age: null,
+        gender: null,
+        avgKmPerWeek: null,
+        profileComplete: false,   // AppEntry will detect this and show OnboardingScreen
+        createdAt: serverTimestamp()
+      });
+      /*No longer navigating here AppEntry's onAuthStateChanged + Firestore check
+       will route them to OnboardingStack automatically */
+
     } catch (err) {
       console.log(err.code); // helpful for debugging in console
       switch (err.code) {
@@ -34,8 +51,7 @@ export default function CreateAccountScreen({ navigation }) {
           setError(err.message);
       }
     }
-  }
-
+  };
 
 return (
     <SafeAreaView style={styles.container}>
@@ -64,6 +80,8 @@ return (
             onChangeText={setEmail}
             style={styles.input}
             mode="outlined"
+            autoCapitalize="none"
+            keyboardType="email-address"
           />
 
           <Text style={styles.label}>Create a password</Text>
@@ -173,8 +191,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 80,
     alignSelf: 'center',
-    width: '350',
-    height: '350',
+    width: 350,
+    height: 350,
     zIndex: -1, // pushes it behind content
   },
   

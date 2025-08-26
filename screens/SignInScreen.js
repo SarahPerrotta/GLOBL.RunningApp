@@ -12,7 +12,7 @@ export default function SignInScreen({ navigation }) {
 
   const handleSignIn = async () => {
     try {
-      await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email.trim(), password);
       navigation.navigate('Main');
     } catch (err) {
       setError(err.message);

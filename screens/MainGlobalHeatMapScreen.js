@@ -4,6 +4,10 @@ import { WebView } from 'react-native-webview'; //For embedding custom HTML
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { auth, db } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 export default function GlobalHeatMapScreen({ navigation }) { 
 // initial minimal HTML while assets load
@@ -294,14 +298,66 @@ export default function GlobalHeatMapScreen({ navigation }) {
     loadAssets();
   }, []);
 
-  // Main screen layout
+ // Add state for the greeting
+const [firstName, setFirstName] = useState(null);
+const [emailLocal, setEmailLocal] = useState(null);
+const [loadingProfile, setLoadingProfile] = useState(true);
+
+// Load user profile (realtime)
+useEffect(() => {
+  const unsubAuth = onAuthStateChanged(auth, (user) => {
+    if (!user) {
+      setFirstName(null);
+      setEmailLocal(null);
+      setLoadingProfile(false);
+      return;
+    }
+
+    // fallback from email local-part
+    const local = (user.email || '').split('@')[0];
+    const prettyLocal = local ? local.charAt(0).toUpperCase() + local.slice(1) : '';
+    setEmailLocal(prettyLocal);
+
+    // Realtime profile listener
+    const ref = doc(db, 'users', user.uid);
+    const unsubProfile = onSnapshot(
+      ref,
+      async (snap) => {
+        const data = snap.data() || {};
+        const fn = data.firstName || '';
+        setFirstName(fn || null);
+        if (fn) {
+          try { await AsyncStorage.setItem('@globl_firstName', fn); } catch {}
+        }
+        setLoadingProfile(false);
+      },
+      (err) => {
+        console.log('Profile listener error:', err);
+        setLoadingProfile(false);
+      }
+    );
+    // cleanup when user changes/unmounts
+    return () => unsubProfile();
+  });
+
+  return () => unsubAuth();
+}, []);
+
+// Build greeting safely ( to avoid rendering .trim function = error)
+const greeting = loadingProfile
+  ? 'Hello…'
+  : ['Hello', firstName || emailLocal].filter(Boolean).join(' ');
+  
   return (
     <SafeAreaView style={styles.container}>
       {/* Header section with greeting and user stats */}
       <View style={styles.header}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-          <Text style={styles.greeting}>Hello Sarah</Text>
-          <Text style={styles.waving}>👋</Text>
+        <Text style={styles.greeting}>
+        {loadingProfile ? 'Hello…' : `Hello ${firstName ?? emailLocal ?? ''}`.trim} 
+        </Text>
+        <Text style={styles.greeting}>{greeting}</Text> 
+        <Text style={styles.waving}>👋</Text>
         </View>
         <Text style={styles.subGreeting}>Your GLOBL. stats are here!</Text>
 
@@ -350,7 +406,7 @@ export default function GlobalHeatMapScreen({ navigation }) {
           <Icon name="location-pin" size={24} color="gray" />
           <Text style={styles.navText}>Current location</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Global Heatmap')}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('GlobalHeatmap')}>
           <Icon name="public" size={24} color="red" />
           <Text style={styles.navTextActive}>Global Heat Map</Text>
         </TouchableOpacity>
