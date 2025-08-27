@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, StyleSheet, Image } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { auth, db } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // import sub-tab screens
 import LeaderScreen from './LeaderTabs/LeaderScreen';
@@ -10,38 +14,73 @@ import AvailableBadgesScreen from './LeaderTabs/AvailableBadgesScreen';
 export default function BadgesScreen() {
   const navigation = useNavigation();
   const route = useRoute();
-  // set default tab based on route params
-  const initialTabFromParams = route.params?.initialTab || 'leaders';
+  const initialTabFromParams = route.params?.initialTab || 'leaders';   // set default tab based on route params
   const [activeTab, setActiveTab] = useState(initialTabFromParams);
-  // Update tab when route param changes
+
+  // Profile state
+  const [firstName, setFirstName] = useState(null);
+  const [emailLocal, setEmailLocal] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  //later development this data can be in firestore too
+  const level = 5;
+  const progress = 0.7;
+  const avatar = require('../assets/ProfileW1.png');
+
   useEffect(() => {
-    if (route.params?.initialTab && route.params.initialTab !== activeTab) {
-      setActiveTab(route.params.initialTab);
-    }
-  }, [route.params?.initialTab]);
+    const unsubAuth = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        setFirstName(null);
+        setEmailLocal(null);
+        setLoadingProfile(false);
+        return;
+      }
 
-  // user data
-  const currentUser = {
-    name: 'Sarah',
-    level: 5,
-    progress: 0.7,
-    avatar: require('../assets/ProfileW1.png'),
-    starColor: '#4CAF50',
-  };
+      // fallback: email local part
+      const local = (user.email || '').split('@')[0];
+      const prettyLocal = local ? local.charAt(0).toUpperCase() + local.slice(1) : '';
+      setEmailLocal(prettyLocal);
 
-  // Renders content based on the selected tab
-  const renderTabContent = () => {
-    switch (activeTab) {
-      case 'leaders':
-        return <LeaderScreen />;
-      case 'badges':
-        return <EarnedBadgesScreen />;
-      case 'available':
-        return <AvailableBadgesScreen />;
-      default:
-        return null;
-    }
-  };
+      // listen to Firestore profile
+      const ref = doc(db, 'users', user.uid);
+      const unsubProfile = onSnapshot(ref, async (snap) => {
+        const data = snap.data() || {};
+        const fn = data.firstName || '';
+        setFirstName(fn || null);
+        if (fn) {
+          try {
+                 await AsyncStorage.setItem('@globl_firstName', fn); } catch {}
+             }
+             setLoadingProfile(false);
+           });
+
+           return () => unsubProfile();
+         });
+
+         return () => unsubAuth();
+       }, []);
+
+       useEffect(() => {
+        if (route.params?.initialTab && route.params.initialTab !== activeTab) {
+          setActiveTab(route.params.initialTab);
+        }
+      }, [route.params?.initialTab]);
+
+       // Renders content based on the selected tab
+       const renderTabContent = () => {
+          switch (activeTab) {
+           case 'leaders':
+             return <LeaderScreen />;
+            case 'badges':
+              return <EarnedBadgesScreen />;
+            case 'available':
+              return <AvailableBadgesScreen />;
+             default:
+               return null;
+         }
+       };
+
+ const displayName = loadingProfile ? 'Loading…' : (firstName ?? emailLocal ?? '');
 
   return (
     <View style={styles.container}>
@@ -59,11 +98,11 @@ export default function BadgesScreen() {
 
       {/* user profile section */}
       <View style={styles.headerContainer}>
-        <Image source={currentUser.avatar} style={styles.avatar} />
+        <Image source={avatar} style={styles.avatar} />
         <View style={styles.profileInfo}>
-          <Text style={styles.userName}>{currentUser.name} Lvl. {currentUser.level}</Text>
+          <Text style={styles.userName}>{displayName} Lvl. {level}</Text>
           <View style={styles.progressBarBackground}>
-            <View style={[styles.progressBarFill, { width: `${currentUser.progress * 100}%` }]} />
+            <View style={[styles.progressBarFill, { width: `${progress * 100}%` }]} />
           </View>
         </View>
       </View>

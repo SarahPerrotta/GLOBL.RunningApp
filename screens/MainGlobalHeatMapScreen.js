@@ -3,11 +3,11 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-na
 import { WebView } from 'react-native-webview'; //For embedding custom HTML
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
-import Icon from 'react-native-vector-icons/MaterialIcons';
 import { auth, db } from '../firebase';
 import { onAuthStateChanged } from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { doc, onSnapshot } from 'firebase/firestore';
+import BottomNav from '../components/BottomNav';
 
 export default function GlobalHeatMapScreen({ navigation }) { 
 // initial minimal HTML while assets load
@@ -353,10 +353,7 @@ const greeting = loadingProfile
       {/* Header section with greeting and user stats */}
       <View style={styles.header}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Text style={styles.greeting}>
-        {loadingProfile ? 'Hello…' : `Hello ${firstName ?? emailLocal ?? ''}`.trim} 
-        </Text>
-        <Text style={styles.greeting}>{greeting}</Text> 
+        <Text style={styles.greeting}>{greeting}</Text>
         <Text style={styles.waving}>👋</Text>
         </View>
         <Text style={styles.subGreeting}>Your GLOBL. stats are here!</Text>
@@ -397,28 +394,7 @@ const greeting = loadingProfile
       </View>
       
      {/* Bottom navigation bar*/}
-      <View style={styles.bottomNav}> 
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
-          <Icon name="person-outline" size={24} color="gray" />
-          <Text style={styles.navText}>Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('CurrentLocation')}>
-          <Icon name="location-pin" size={24} color="gray" />
-          <Text style={styles.navText}>Current location</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('GlobalHeatmap')}>
-          <Icon name="public" size={24} color="red" />
-          <Text style={styles.navTextActive}>Global Heat Map</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('LeaderBoard', { initialTab: 'leaders' })}>
-          <Icon name="emoji-events" size={24} color="gray" />
-          <Text style={styles.navText}>Leaderboard</Text>
-          </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('NavigationHub')}>
-          <Icon name="menu" size={24} color="gray" />
-          <Text style={styles.navText}>Navigation</Text>
-        </TouchableOpacity>
-      </View>
+     <BottomNav navigation={navigation} active="GlobalHeatmap" />
    </SafeAreaView>
   );
 }

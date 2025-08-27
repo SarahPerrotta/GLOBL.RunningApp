@@ -13,6 +13,7 @@ import RunClub from '../screens/RunClubScreen';
 import ParkRun from '../screens/ParkRunScreen';
 import PinnedTrails from '../screens/PinnedTrailsScreen';
 import FriendSuggestionsScreen from '../screens/FriendSuggestionsScreen';
+import UserLocationMapScreen from '../screens/UserLocationMapScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -22,17 +23,21 @@ export default function AppStack() {
       <Stack.Screen name="GlobalHeatmap" component={GlobalHeatMapScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="LeaderBoard" component={LeaderBoardScreen} />
+      <Stack.Screen name="CurrentLocation" component={UserLocationMapScreen}/>
+
+      {/*Articles */}
       <Stack.Screen name="NavigationHub" component={NavigationScreen} />
       <Stack.Screen name="Articles" component={ArticlesListScreen} />
       <Stack.Screen name="ArticleInjury" component={Injury} />
       <Stack.Screen name="ArticleNutrition" component={Nutrition} />
       <Stack.Screen name="ArticleZone2" component={Zone2} />
+      
+      {/*Settings and misc*/}
       <Stack.Screen name="Settings" component={Settings} />
       <Stack.Screen name="RunClub" component={RunClub} />
       <Stack.Screen name="ParkRun" component={ParkRun} />
       <Stack.Screen name="PinnedTrails" component={PinnedTrails} />
       <Stack.Screen name="Friends" component={FriendSuggestionsScreen} />
-
     </Stack.Navigator>
   );
 }

@@ -1,12 +1,56 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { SafeAreaView, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Text } from 'react-native-paper';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
+import { auth, db } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
+import { doc, onSnapshot } from 'firebase/firestore';
+import BottomNav from '../components/BottomNav';
 
 export default function ProfileScreen({ navigation }) {
   // Incognito toggle (icon + label swap) -- Link this incognito status to other pages.
   const [isIncognito, setIsIncognito] = useState(false);
   const toggleIncognito = () => setIsIncognito(v => !v);
+
+  // Profile state from Firebase
+  const [firstName, setFirstName] = useState(null);
+  const [email, setEmail] = useState(null);
+  const [loadingProfile, setLoadingProfile] = useState(true);
+
+  useEffect(() => {
+    const unsubAuth = onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        setFirstName(null);
+        setEmail(null);
+        setLoadingProfile(false);
+        return;
+      }
+
+      // Email comes from Auth
+      setEmail(user.email || '');
+
+      // Name comes from Firestore
+      const ref = doc(db, 'users', user.uid);
+      const unsubProfile = onSnapshot(
+        ref,
+        (snap) => {
+          const data = snap.data() || {};
+          setFirstName(data.firstName || null);
+          setLoadingProfile(false);
+        },
+        () => setLoadingProfile(false)
+      );
+
+      return () => unsubProfile();
+    });
+
+    return () => unsubAuth();
+  }, []);
+
+  // fallback: if no firstName, show email
+  const emailLocal = (email || '').split('@')[0];
+  const displayName =
+    loadingProfile ? 'Loading…' : (firstName || (emailLocal ? emailLocal.charAt(0).toUpperCase() + emailLocal.slice(1) : ''));
 
   // weekly stats (static for MVP)
   const stats = [
@@ -35,8 +79,8 @@ export default function ProfileScreen({ navigation }) {
         {/* Avatar + name + email */}
         <View style={styles.centerBlock}>
           <Image source={require('../assets/ProfileW1.png')} style={styles.avatar} />
-          <Text style={styles.name}>Sarah</Text>
-          <Text style={styles.email}>TrailBlazer1@gmail.com</Text>
+          <Text style={styles.name}>{displayName}</Text>
+          <Text style={styles.email}>{email || ''}</Text>
         </View>
 
         {/* Weekly stats card */}
@@ -79,30 +123,8 @@ export default function ProfileScreen({ navigation }) {
           </TouchableOpacity>
         </View>
       </View>
-
       {/* bottom navigation tabs */}
-      <View style={styles.bottomNav}>
-        <TouchableOpacity style={styles.navItem}>
-          <MaterialIcon name="person-outline" size={22} color="red" />
-          <Text style={styles.navTextActive}>Profile</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('CurrentLocation')}>
-          <MaterialIcon name="location-pin" size={22} color="gray" />
-          <Text style={styles.navText}>Pinned Sites</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Global Heatmap')}>
-          <MaterialIcon name="public" size={22} color="gray" />
-          <Text style={styles.navText}>Global Heat Map</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('LeaderBoard', { initialTab: 'leaders' })}>
-          <MaterialIcon name="emoji-events" size={22} color="gray" />
-          <Text style={styles.navText}>Leaderboard</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('NavigationHub')}>
-          <MaterialIcon name="menu" size={22} color="gray" />
-          <Text style={styles.navText}>Navigation</Text>
-        </TouchableOpacity>
-      </View>
+      <BottomNav navigation={navigation} active="Profile" />
     </SafeAreaView>
   );
 }
@@ -179,17 +201,4 @@ const styles = StyleSheet.create({
   menuRow: { flexDirection: 'row', alignItems: 'center' },
   menuText: { fontSize: 20, fontWeight: '500', color: COLORS.text },
   menuTextInline: { marginLeft: 10 },
-
-  /* Bottom nav */
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderTopWidth: 2,
-    borderTopColor: COLORS.brand,
-    paddingVertical: 10,
-    backgroundColor: '#fff',
-  },
-  navItem: { alignItems: 'center' },
-  navText: { fontSize: 11, marginTop: 3, color: 'gray' },
-  navTextActive: { fontSize: 11, marginTop: 3, color: COLORS.brand, fontWeight: 'bold' },
 });
