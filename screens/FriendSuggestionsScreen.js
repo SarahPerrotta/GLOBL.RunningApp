@@ -2,14 +2,13 @@ import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, ScrollView, Pressable, Modal, Switch, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import { useIncognito } from '../components/IncognitoContext';
+import IncognitoToggle from '../components/IncognitoToggle';
 
 const RED = '#DE1E26'; // main theme colour for the app 
 /* Keys used to save/retrieve data in AsyncStorage
-- INCOGNITO: whether user has privacy mode turned on
 - FRIENDS: the list of selected friends stored for the leaderboard */
 const STORAGE_KEYS = {
-  INCOGNITO: 'incognito',
   FRIENDS: 'leaderboard_friends',
 };
 // Number of friend cards shown in each suggestion block
@@ -153,18 +152,15 @@ function Section({ title, seed, source, selected, onToggle }) {
 //Main screen for friend suggestions 
 export default function FriendSuggestionsScreen({ navigation }) {
   //local state
-  const [showInfo, setShowInfo] = useState(false); // whether the privacy modal is open
-  const [incognito, setIncognito] = useState(false); // true = user has privacy mode turned on
-  const [selected, setSelected] = useState([]); // stores all friends the user has chosen
+  const [showInfo, setShowInfo] = useState(false); // local - whether the privacy modal is open
+  const [selected, setSelected] = useState([]); // local - stores all friends the user has chosen
+  const { incognito, setIncognito } = useIncognito(); //global incognito state
 
   // * Initial load from AsyncStorage *
   // This runs once when the screen first mounts and tries to restore previous settings
   useEffect(() => {
     (async () => {
       try {
-           // load incognito preference from storage
-        const rawIncog = await AsyncStorage.getItem(STORAGE_KEYS.INCOGNITO);
-        if (rawIncog != null) setIncognito(rawIncog === '1');
         // load previously selected friends list from storage
         const raw = await AsyncStorage.getItem(STORAGE_KEYS.FRIENDS);
         if (raw) {
@@ -182,16 +178,10 @@ export default function FriendSuggestionsScreen({ navigation }) {
       }
     })();
   }, []);
-  // * Toggle incognito mode *
-  // When the user switches incognito on/off, update state AND save to AsyncStorage
-  const handleToggleIncognito = useCallback(async (next) => {
-    setIncognito(next); //update local state
-    try {
-      await AsyncStorage.setItem(STORAGE_KEYS.INCOGNITO, next ? '1' : '0'); //persist to storgae
-    } catch (e) {
-      console.warn('Failed to persist incognito:', e);
-    }
-  }, []);
+
+  // Toggle incognito via global setter
+  const handleToggleIncognito = useCallback((next) => setIncognito(next), [setIncognito]);
+  
   // * Toggle friend selection *
   // Adds or removes a friend from the selected list
   // Also saves the updated list to AsyncStorage so it survives reload
@@ -279,8 +269,7 @@ export default function FriendSuggestionsScreen({ navigation }) {
               suggestion to other users based on shared clubs, parkruns, or trails.
             </Text>
             <View style={styles.toggleRow}>
-              <Text style={styles.toggleLabel}>Incognito mode</Text>
-              <Switch value={incognito} onValueChange={handleToggleIncognito} />
+            <IncognitoToggle label="Incognito mode" />
             </View>
             <Pressable onPress={() => setShowInfo(false)} style={styles.modalCloseBtn}>
               <Text style={styles.modalCloseText}>Done</Text>

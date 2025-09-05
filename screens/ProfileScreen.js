@@ -1,25 +1,29 @@
 import React, { useState, useEffect } from 'react';
-import { SafeAreaView, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { SafeAreaView, View, StyleSheet, TouchableOpacity, Pressable, Image } from 'react-native';
 import { Text } from 'react-native-paper';
 import MaterialIcon from 'react-native-vector-icons/MaterialIcons';
 import { auth, db } from '../firebase';
-import { onAuthStateChanged } from 'firebase/auth';
-import { doc, onSnapshot } from 'firebase/firestore';
+import { onAuthStateChanged, updateProfile } from 'firebase/auth';
+import { doc, onSnapshot, setDoc, getDoc, updateDoc } from 'firebase/firestore';
+import EditNameModal from '../components/EditNameModal';
 import BottomNav from '../components/BottomNav';
+import { useIncognito } from '../components/IncognitoContext';
+import Toast from 'react-native-toast-message';
 
 export default function ProfileScreen({ navigation }) {
-  // Incognito toggle (icon + label swap) -- Link this incognito status to other pages.
-  const [isIncognito, setIsIncognito] = useState(false);
-  const toggleIncognito = () => setIsIncognito(v => !v);
-
-  // Profile state from Firebase
+  const { incognito, toggleIncognito } = useIncognito();
   const [firstName, setFirstName] = useState(null);
   const [email, setEmail] = useState(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
 
+  //for modal and updates
+  const [editOpen, setEditOpen] = useState(false);
+  const [uid, setUid] = useState(null);
+
   useEffect(() => {
-    const unsubAuth = onAuthStateChanged(auth, (user) => {
+    const unsubAuth = onAuthStateChanged(auth, async (user) => {
       if (!user) {
+        setUid(null);
         setFirstName(null);
         setEmail(null);
         setLoadingProfile(false);
@@ -27,10 +31,21 @@ export default function ProfileScreen({ navigation }) {
       }
 
       // Email comes from Auth
+      setUid(user.uid);
       setEmail(user.email || '');
 
       // Name comes from Firestore
       const ref = doc(db, 'users', user.uid);
+
+      // Ensure a profile doc exists once
+      const snap = await getDoc(ref);
+      if (!snap.exists()) {
+        await setDoc(ref, {
+         firstName: user.displayName || '',
+         email: user.email || '',
+         createdAt: Date.now(),
+        });
+     }
       const unsubProfile = onSnapshot(
         ref,
         (snap) => {
@@ -47,12 +62,33 @@ export default function ProfileScreen({ navigation }) {
     return () => unsubAuth();
   }, []);
 
-  // fallback: if no firstName, show email
+   // Save from modal to Firestore + Auth + local state
+   const handleSaveName = async (newName) => {
+    if (!uid) return;
+    try {
+      const ref = doc(db, 'users', uid);
+      await updateDoc(ref, { firstName: newName.trim() });
+      if (auth.currentUser) {
+        await updateProfile(auth.currentUser, { displayName: newName.trim() });
+      }
+      setFirstName(newName.trim());
+      setEditOpen(false);
+    } catch (e) {
+      console.warn('Name update failed:', e);
+      //error message, changing name 
+      Toast.show({
+        type: 'error',
+        text1: 'Update failed',
+        text2: 'Could not update your name. Please try again.',
+      });
+    }
+  };
+  // fallback: if no firstName, show email (local part)
   const emailLocal = (email || '').split('@')[0];
   const displayName =
     loadingProfile ? 'Loading…' : (firstName || (emailLocal ? emailLocal.charAt(0).toUpperCase() + emailLocal.slice(1) : ''));
 
-  // weekly stats (static for MVP)
+  // weekly stats (static mock for MVP)
   const stats = [
     'You attended 1 ParkRun.',
     '3 GLOBL. Runners befriended.',
@@ -63,17 +99,29 @@ export default function ProfileScreen({ navigation }) {
     <SafeAreaView style={styles.safe}>
       {/* HEADER: back, title, edit */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.iconCircle}>
-          <MaterialIcon name="chevron-left" size={20} color="#DE1E26" />
-        </TouchableOpacity>
+       <Pressable
+         onPress={() => navigation.goBack()}
+         style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
+         accessibilityRole="button"
+         accessibilityLabel="Go back"
+      >
+         <MaterialIcon name="chevron-left" size={28} color="#DE1E26" />
+      </Pressable>
+
         <Text style={styles.headerTitle}>Profile</Text>
-      {/* Come back to this -- create edit page */}
-        <TouchableOpacity onPress={() => navigation.navigate('EditProfile')} style={styles.iconCircle}> 
-          <MaterialIcon name="edit" size={18} color="#DE1E26" />
-        </TouchableOpacity>
+      {/* open modal to edit */}
+     <Pressable
+         onPress={() => setEditOpen(true)}
+         style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
+         accessibilityRole="button"
+         accessibilityLabel="Edit name"
+       >
+         <MaterialIcon name="edit" size={24} color="#DE1E26" />
+      </Pressable>
+       
       </View>
 
-      {/* BODY (non‑scroll): avatar, name/email, stats card, menu buttons */}
+      {/* BODY includes avatar, name/email, stats card, menu buttons */}
       <View style={styles.body}>
 
         {/* Avatar + name + email */}
@@ -105,12 +153,12 @@ export default function ProfileScreen({ navigation }) {
           <TouchableOpacity style={styles.menuItem} onPress={toggleIncognito}>
             <View style={styles.menuRow}>
               <MaterialIcon
-                name={isIncognito ? 'visibility' : 'visibility-off'}
+                name={incognito ? 'visibility' : 'visibility-off'}
                 size={20}
-                color={isIncognito ? '#DE1E26' : '#0E2B32'}
+                color={incognito ? '#DE1E26' : '#0E2B32'}
               />
               <Text style={[styles.menuText, styles.menuTextInline]}>
-                {isIncognito ? 'Incognito Mode On' : 'Incognito Mode Off'}
+                {incognito ? 'Incognito Mode On' : 'Incognito Mode Off'}
               </Text>
             </View>
           </TouchableOpacity>
@@ -125,6 +173,12 @@ export default function ProfileScreen({ navigation }) {
       </View>
       {/* bottom navigation tabs */}
       <BottomNav navigation={navigation} active="Profile" />
+      <EditNameModal
+        visible={editOpen}
+        initialName={firstName || ''}
+        onCancel={() => setEditOpen(false)}
+        onSave={handleSaveName}
+      />
     </SafeAreaView>
   );
 }
@@ -147,11 +201,15 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingTop: 6,
   },
-  iconCircle: {
-    width: 34, height: 34, borderRadius: 17,
-    borderWidth: 2, borderColor: COLORS.brand,
-    alignItems: 'center', justifyContent: 'center',
-  },
+  iconBtn: {
+    padding: 8,
+    borderRadius: 20,   
+    alignItems: 'center',
+    justifyContent: 'center',
+    },
+  pressed: {
+    opacity: 0.5,
+   },
   headerTitle: {
     flex: 1, textAlign: 'center', fontSize: 22, fontWeight: '700', color: '#000',
   },

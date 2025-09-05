@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView } from 'react-native';
 import { WebView } from 'react-native-webview'; //For embedding custom HTML
 import { Asset } from 'expo-asset';
 import * as FileSystem from 'expo-file-system';
@@ -394,7 +394,7 @@ const greeting = loadingProfile
       </View>
       
      {/* Bottom navigation bar*/}
-     <BottomNav navigation={navigation} active="GlobalHeatmap" />
+     <BottomNav navigation={navigation} active="GlobalHeatMap" />
    </SafeAreaView>
   );
 }
@@ -461,29 +461,6 @@ const styles = StyleSheet.create({
   webview: {
     flex: 1,
     backgroundColor: 'white',
-  },
-   // bottom navigation bar
-  bottomNav: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    borderTopWidth: 2,
-    borderTopColor: 'red',
-    paddingVertical: 12,
-    backgroundColor: 'white',
-  },
-  navItem: {
-    alignItems: 'center',
-  },
-  navText: {
-    fontSize: 12,
-    marginTop: 4,
-    color: 'gray',
-  },
-  navTextActive: {
-    fontSize: 12,
-    marginTop: 4,
-    color: 'red',
-    fontWeight: 'bold',
-  },
+  }
 });
 

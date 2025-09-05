@@ -21,8 +21,8 @@ export default function NavigationScreen({ navigation }) {
       <View style={styles.header}>
         {/* Back button */}
         <Pressable
-          onPress={() => navigation.navigate('Main')}  // routes back to Global Heat Map
-          style={({ pressed }) => [styles.backBtn, pressed && styles.pressed]}
+          onPress={() => navigation.navigate('GlobalHeatMap')}  // routes back to Global Heat Map
+          style={({ pressed }) => [styles.iconBtn, pressed && styles.pressedIcon]}
           accessibilityRole="button"
           accessibilityLabel="Go back"
         >
@@ -82,14 +82,14 @@ const styles = StyleSheet.create({
   },
 
   // Back button style
-  backBtn: {
-    width: 40,
-    height: 40,
+  iconBtn: {
+    padding: 8,
     borderRadius: 20,
-    borderWidth: 2,
-    borderColor: COLORS.border,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  pressedIcon: {
+    opacity: 0.5,
   },
 
   // Placeholder element to balance the header

@@ -34,9 +34,9 @@ export default function BottomNav({ navigation, active }) {
     <View style={styles.bottomNav}>
       <Item label="Profile"        icon="person-outline" route="Profile" />
       <Item label="Location"        icon="location-pin"   route="CurrentLocation" />
-      <Item label="Global Heat Map" icon="public"       route="GlobalHeatmap" />
+      <Item label="Global Heat Map" icon="public"       route="GlobalHeatMap" />
       <Item label="Leaderboard"    icon="emoji-events"  route="LeaderBoard" params={{ initialTab: 'leaders' }} />
-      <Item label="Navigation"     icon="menu"          route="NavigationHub" />
+      <Item label="Navigation Hub"     icon="menu"          route="NavigationHub" />
     </View>
   );
 }

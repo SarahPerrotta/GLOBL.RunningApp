@@ -4,8 +4,10 @@ import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Modal,
 import MapView, { Marker, Circle } from 'react-native-maps';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BottomNav from '../components/BottomNav';
-import { db } from '../firebase';
+import { auth, db } from '../firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 import { collection, addDoc, serverTimestamp, onSnapshot, query, orderBy } from 'firebase/firestore';
+
 
 // mock static dataset for Glasgow ParkRuns and Run Clubs.
 // These are used for location type-ahead suggestions for logging runs.
@@ -30,6 +32,16 @@ const COLORS = {
 };
 
 export default function UserLocationMapScreen({ navigation }) {
+  const [uid, setUid] = useState(auth.currentUser?.uid || null);
+
+  useEffect(() => {
+   const unsub = onAuthStateChanged(auth, (user) => {
+      setUid(user?.uid || null);
+       if (!user) setRuns([]); // clear runs on sign out
+     });
+     return unsub;
+  }, []);
+
   // Default map centre (Glasgow) -this acts as user’s GPS location for MVP.
   const userLat = 55.8642;
   const userLng = -4.2518;
@@ -54,38 +66,31 @@ export default function UserLocationMapScreen({ navigation }) {
   const [activeTab, setActiveTab] = useState('HEAT');     // toggles between "Heat Map" and "My Runs"
   const [showSuggestions, setShowSuggestions] = useState(false); //hides the ParkRun / Run Club type-ahead list.
 
-  // Real-time Firestore listener for the "runs" collection
   useEffect(() => {
-    // build a query on 'runs' collection, order newest first by createdAt
-    const q = query(collection(db, 'runs'), orderBy('createdAt', 'desc'));
-    // subscribe to updates with onSnapshot
-    const unsub = onSnapshot(
-      q,
-      (snap) => {
-        // map each Firestore document into a plain JS object
+     if (!uid) return; // not signed in yet
+     const q = query(
+       collection(db, 'users', uid, 'runs'),
+       orderBy('createdAt', 'desc')
+     );
+      const unsub = onSnapshot(q, (snap) => {
         const list = snap.docs.map((doc) => {
           const d = doc.data() || {};
           return {
-            id: doc.id,                  //document id
-            distanceKm: d.distanceKm,   // distance of run
-            durationMin: d.durationMin, //time of run
-            location: d.location,       // {label, lat, lng}
-            date: d.date,               //run date string
-            createdAt: d.createdAt?.toDate?.() ?? new Date(d.createdAt),
-          };
-        });
-        // update local state so UI re-renders with latest runs
-        setRuns(list);
-      },
-      (err) => {
-        // if snapshot fails, log warning 
-        console.warn('Firestore listener error:', err?.code || err?.message);
-        setErrorMsg(String(err?.message || err?.code || 'Listener error'));
-      }
-    );
-    // unsubscribe from listener when component unmounts
-    return () => unsub();
-  }, []);
+           id: doc.id,
+           distanceKm: d.distanceKm,
+           durationMin: d.durationMin,
+           location: d.location,
+           date: d.date,
+           createdAt: d.createdAt?.toDate?.() ?? (d.createdAt ? new Date(d.createdAt) : new Date()),
+        };
+      });
+      setRuns(list);
+    }, (err) => {
+       console.warn('Firestore listener error:', err?.code || err?.message);
+       setErrorMsg(String(err?.message || err?.code || 'Listener error'));
+     });
+      return () => unsub();
+  }, [uid]);
 
   // Validation check for saving a run
   // only allow Save if distance & duration are numbers, date is YYYY-MM-DD, and location not empty
@@ -132,8 +137,9 @@ export default function UserLocationMapScreen({ navigation }) {
         }
       }
 
-      // create new doc in Firestore 'runs' collection
-      await addDoc(collection(db, 'runs'), {
+      // create new doc in Firestore each user's 'runs' collection
+      if (!uid) throw new Error('Not signed in');
+      await addDoc(collection(db, 'users', uid, 'runs'), {
         distanceKm: Number(distanceKm),
         durationMin: Number(durationMin),
         location: { label: locationText, lat, lng },

@@ -4,6 +4,8 @@ import { TextInput, Button, Text } from 'react-native-paper';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { auth, db} from '../firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore'; 
+import AsyncStorage from '@react-native-async-storage/async-storage'; 
+import { CommonActions } from '@react-navigation/native';
 
 export default function CreateAccountScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -29,11 +31,20 @@ export default function CreateAccountScreen({ navigation }) {
         age: null,
         gender: null,
         avgKmPerWeek: null,
-        profileComplete: false,   // AppEntry will detect this and show OnboardingScreen
+        profileComplete: false,   
         createdAt: serverTimestamp()
       });
-      /*No longer navigating here AppEntry's onAuthStateChanged + Firestore check
-       will route them to OnboardingStack automatically */
+      
+      //mark onboarding as NOT done for brand-new accounts 
+      await AsyncStorage.setItem('hasOnboarded', 'false');
+
+      const rootNav = navigation.getParent?.() ?? navigation;
+      rootNav.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [{ name: 'Onboard' }],  // this now always exists
+        })
+      );
 
     } catch (err) {
       console.log(err.code); // helpful for debugging in console
@@ -45,7 +56,7 @@ export default function CreateAccountScreen({ navigation }) {
           setError('Invalid email format.');
           break;
         case 'auth/weak-password':
-          setError('Password must be at least 6 characters.');
+          setError('Password must be at least 8 characters.');
           break;
         default:
           setError(err.message);

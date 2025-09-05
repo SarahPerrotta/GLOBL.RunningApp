@@ -67,16 +67,16 @@ const BASE_LEADERBOARD = [
   {
     id:'sean',
     name: 'Sean',
-    level: 5,
+    level: 3,
     description: 'East Dunbartonshire RunClub together',
     progress: 0.5,
-    color: getLevelColor(5),
+    color: getLevelColor(3),
     image: require('../../assets/ProfileM3.png'),
     isBase: true,
   },
 ];
 
-// randomised mock data for avatars lvl. 
+// randomised mock data for avatars lvl. - ensure missing stats
 function ensureStats(friend) {
   const level = friend.level ?? (Math.floor(Math.random() * 10) + 1);
   const progress = friend.progress ?? Math.max(0.05, Math.min(0.95, Math.random()));
@@ -87,8 +87,6 @@ function ensureStats(friend) {
 export default function LeaderScreen() {
   const [data, setData] = useState(BASE_LEADERBOARD);
 
-  /* This hook runs every time the LeaderScreen is at the forefront;
-  newly added friends show up immediately without needing to refresh or restart the app. */
   useFocusEffect(
     useCallback(() => {
       let isActive = true;
@@ -101,73 +99,72 @@ export default function LeaderScreen() {
           // Map/normalise to row shape
           const friendRows = friends.map((f) => {
             const withStats = ensureStats(f);
+            const idx = Number(withStats.avatarIndex);
             return {
-              id: withStats.id || `${withStats.name}:${withStats.source}:${withStats.avatarIndex}`,
+              id: withStats.id || `${withStats.name}:${withStats.source}:${idx}`,
               name: withStats.name,
               level: withStats.level,
               description: withStats.source || 'Newly added friend',
               progress: withStats.progress,
               color: getLevelColor(withStats.level),
-              image: AVATARS[withStats.avatarIndex],
+              image: AVATARS[idx] ?? AVATARS[0],
               isBase: false,
             };
           });
 
           // Merge (avoid dupes by id if present; otherwise by name+desc+image)
-          const merged = [...BASE_LEADERBOARD]; //array merge was created with all the default/base leaderboard users (Nick, Jason, Maddie, Sean).
-          for (const fr of friendRows) { // iterates through all the friends added from AsyncStorage
-            //merged.some(...) looks at each entry already in the merged leaderboard to check if the new friend fr is already there.
+          const merged = [...BASE_LEADERBOARD];
+          for (const fr of friendRows) {
             const exists = merged.some(
               (m) =>
                 (fr.id && m.id === fr.id) || 
-                (!fr.id && m.name === fr.name && m.image === fr.image && m.description === fr.description) //compare by name + image + description (a fallback to avoid duplicates).
+                (!fr.id && 
+                   m.name === fr.name &&
+                   m.image === fr.image && 
+                   m.description === fr.description)
             );
-            if (!exists) merged.push(fr); //Only adds the friend to the merged list if they aren’t already in it.
+            if (!exists) merged.push(fr);
           }
 
-          if (isActive) setData(merged); //isActive flag ensures we don’t update state after unmount; update with merged list
+          if (isActive) setData(merged);
         } catch (e) {
-          console.warn('Error loading friends:', e); //if something fails show warning and all back to only using base leaderboard
+          console.warn('Error loading friends:', e);
           if (isActive) setData(BASE_LEADERBOARD);
         }
       })();
 
       return () => {
-        isActive = false; //if the user leaves screen before the async task finishes, it won’t try to update state on an unmounted component
+        isActive = false;
       };
     }, [])
   );
 
-  // Asking the user if they really want to delete a friend
+  // Handle deleting a friend from the leaderboard + AsyncStorage
+  const deleteFriend = async (row) => {
+    try {
+      setData((prev) => prev.filter((r) => r.isBase || r.id !== row.id));
+      const raw = await AsyncStorage.getItem('leaderboard_friends');
+      const friends = raw ? JSON.parse(raw) : [];
+      const updated = friends.filter(
+        (f) => (f.id || `${f.name}:${f.source}:${f.avatarIndex}`) !== row.id
+      );
+      await AsyncStorage.setItem('leaderboard_friends', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('Failed to delete friend:', e);
+    }
+  };
+
   const confirmDelete = (row) => {
     Alert.alert(
-      'Remove friend?', // title of the pop-up
-      `This will remove ${row.name} from your leaderboard.`, //message with friends name
+      'Remove friend?',
+      `This will remove ${row.name} from your leaderboard.`,
       [
-        { text: 'Cancel', style: 'cancel' }, //option to back out
-        { text: 'Remove', style: 'destructive', onPress: () => deleteFriend(row) }, //deletes friend when pressed
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => deleteFriend(row) },
       ]
     );
   };
 
-// Handle deleting a friend from the leaderboard + AsyncStorage
-  const deleteFriend = async (row) => {
-    try {
-      // Smooth update of leaderboard, no blank flicker
-      setData((prev) => prev.filter((r) => r.isBase || r.id !== row.id));
-      //get the saved friends list from AsyncStorage
-      const raw = await AsyncStorage.getItem('leaderboard_friends');
-      const friends = raw ? JSON.parse(raw) : [];
-      //filter out he deleted friends (keep others+base friends)
-      const updated = friends.filter(
-        (f) => (f.id || `${f.name}:${f.source}:${f.avatarIndex}`) !== row.id
-      );
-      //saved updatedlist back into AsyncStorage
-      await AsyncStorage.setItem('leaderboard_friends', JSON.stringify(updated));
-    } catch (e) {
-      console.warn('Failed to delete friend:', e); //if something fails, log warning 
-    }
-  };
   // UI, small swipeable delete button
   const RightAction = () => (
     <View style={styles.deleteAction}>
@@ -175,74 +172,72 @@ export default function LeaderScreen() {
       <Text style={styles.deleteText}>Delete</Text>
     </View>
   );
- 
+
   return (
     // Main scrollable container for the leaderboard screen
     <GHScrollView 
-    style={styles.container} 
-    contentContainerStyle={{ paddingBottom: 16 }}>
-      {/* loops through every user (base friends and added friends*/}
+      style={styles.container} 
+      contentContainerStyle={{ paddingBottom: 16 }}
+    >
+      {/* loops through every user (base friends and added friends) */}
       {data.map((user, index) => {
         //build the row layout for a single leaderboard entry
         const Row = (
-        <View style={styles.card}>
-          {/* Avatar / profile picture */}
-          <Image source={user.image} style={styles.avatar} />
-          {/* tesxt + progress bar */}
-          <View style={styles.textContainer}>
-             {/* Show the user's name and their level beside it */}
-            <Text style={styles.name}>
-              {user.name} <Text style={styles.level}>Lvl.{user.level}</Text>
-            </Text>
-             {/* Small description about shared activity (ParkRun,RunClub etc.) */}
-            <Text style={styles.description}>{user.description}</Text>
-            {/* progress bar */}
-            <View style={styles.progressBackground}>
-              {/* filled value of avatars progress bar*/}
-              <View
-                style={[
-                  styles.progressFill,
-                  {
-                    //ensures bar doesnt exceed 100%
-                    width: `${Math.min((user.progress || 0) * 100, 100)}%`,
-                    backgroundColor: user.color, //color tied to their level
-                  },
-                ]}
-              />
+          <View style={styles.card}>
+            {/* Avatar / profile picture */}
+            <Image source={user.image || AVATARS[0]} style={styles.avatar} />
+            {/* text + progress bar */}
+            <View style={styles.textContainer}>
+              {/* Show the user's name and their level beside it */}
+              <Text style={styles.name}>
+                {user.name} <Text style={styles.level}>Lvl.{user.level}</Text>
+              </Text>
+              {/* Small description about shared activity (ParkRun,RunClub etc.) */}
+              <Text style={styles.description}>{user.description}</Text>
+              {/* progress bar */}
+              <View style={styles.progressBackground}>
+                {/* filled value of avatars progress bar*/}
+                <View
+                  style={[
+                    styles.progressFill,
+                    {
+                      //ensures bar doesnt exceed 100%
+                      width: `${Math.min((user.progress || 0) * 100, 100)}%`,
+                      backgroundColor: user.color, //color tied to their level
+                    },
+                  ]}
+                />
+              </View>
             </View>
           </View>
-        </View>
-      );
-      // If this user is a "base" leaderboard entry (mock starter data),
-      // render them directly without swipe-to-delete functionality.
-      if (user.isBase) {
-        return <View key={`base-${index}`}>{Row}</View>;
-       }
-       /* If this user is NOT a base entry (i.e., a friend added via suggestions),
-       wrap their row inside a Swipeable component so the user can swipe left
-       to reveal the "Delete" action.*/
-       // NOTE: Swipeable from gesture-handler is deprecated.
-       // Works fine here, but could be migrated to Reanimated's Swipeable in future.
-       return (
-         <Swipeable
-           key={user.id || `row-${index}`} //unique key per row
-           renderRightActions={RightAction} //what shows when swiped left
-           rightThreshold={40} //how far to swift before triggering
-           overshootRight={false} //prevetn swipe "bounce"
-           onSwipeableRightOpen={() => confirmDelete(user)} //show confirmation prompt
-         >
-           {Row} {/* reuse the same ROW UI inside swipeable wrapper*/}
-         </Swipeable>
-       );
-     })}
-   </GHScrollView>
- );
+        );
+
+        // If this user is a "base" leaderboard entry (mock starter data),
+        // render them directly without swipe-to-delete functionality.
+        if (user.isBase) {
+          return <View key={`base-${index}`}>{Row}</View>;
+        }
+        /* If this user is NOT a base entry (i.e., a friend added via suggestions),
+           wrap their row inside a Swipeable component so the user can swipe left
+           to reveal the "Delete" action. */
+        return (
+          <Swipeable
+            key={user.id || `row-${index}`} //unique key per row
+            renderRightActions={RightAction} //what shows when swiped left
+            rightThreshold={40} //how far to swipe before triggering
+            overshootRight={false} //prevent swipe "bounce"
+            onSwipeableRightOpen={() => confirmDelete(user)} //show confirmation prompt
+          >
+            {Row} {/* reuse the same ROW UI inside swipeable wrapper */}
+          </Swipeable>
+        );
+      })}
+    </GHScrollView>
+  );
 }   
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   // each card row for a leaderboard entry
   card: {
     flexDirection: 'row',
@@ -260,19 +255,19 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     marginRight: 12,
   },
-    // container for text and progress inside the card
+  // container for text and progress inside the card
   textContainer: { flex: 1 },
   name: { fontWeight: 'bold', fontSize: 14 },
   level: { fontWeight: 'normal', color: '#555'},
   description: { fontSize: 13, color: '#666', marginBottom: 4 },
-    // background of the progress bar
+  // background of the progress bar
   progressBackground: {
     height: 8,
     backgroundColor: '#eee',
     borderRadius: 4,
     width: '100%',
   },
-   // filled portion of the progress bar
+  // filled portion of the progress bar
   progressFill: { height: 8, borderRadius: 4 },
 
   deleteAction: {
@@ -283,3 +278,4 @@ const styles = StyleSheet.create({
   },
   deleteText: { color: '#fff', marginTop: 4, fontWeight: '700' },
 });
+

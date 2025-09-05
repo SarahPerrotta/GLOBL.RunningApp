@@ -2,6 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView, View, Text, StyleSheet, Pressable, ScrollView} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { signOut } from 'firebase/auth';
+import { auth } from '../firebase';
+import { CommonActions } from '@react-navigation/native';
 
 /* apps core colors */
 const COLORS = {
@@ -43,33 +46,25 @@ function SquareCheckbox({ checked, onToggle, size = 28 }) {
 const KEYS = {
   agreeFindable: 'settings_agree_findable',
   incognito: 'settings_incognito',
-  gps: 'settings_gps',
-  notifications: 'settings_notifications',
   savedAt: 'settings_saved_at',
 };
 
 export default function SettingsScreen({ navigation }) {
   const [agreeFindable, setAgreeFindable] = useState(false);
   const [incognito, setIncognito] = useState(false);
-  const [gps, setGps] = useState(false);
-  const [notifications, setNotifications] = useState(false);
   const [savedAt, setSavedAt] = useState(null);
 
   /* load saved values once */
   useEffect(() => {
     (async () => {
       try {
-        const [a, i, g, n, t] = await Promise.all([
+        const [a, i, t] = await Promise.all([
           AsyncStorage.getItem(KEYS.agreeFindable),
           AsyncStorage.getItem(KEYS.incognito),
-          AsyncStorage.getItem(KEYS.gps),
-          AsyncStorage.getItem(KEYS.notifications),
           AsyncStorage.getItem(KEYS.savedAt),
         ]);
         if (a !== null) setAgreeFindable(a === 'true');
         if (i !== null) setIncognito(i === 'true');
-        if (g !== null) setGps(g === 'true');
-        if (n !== null) setNotifications(n === 'true');
         if (t) setSavedAt(t);
       } catch (e) {
         console.warn('Load settings failed', e);
@@ -84,13 +79,35 @@ export default function SettingsScreen({ navigation }) {
       await Promise.all([
         AsyncStorage.setItem(KEYS.agreeFindable, String(agreeFindable)),
         AsyncStorage.setItem(KEYS.incognito, String(incognito)),
-        AsyncStorage.setItem(KEYS.gps, String(gps)),
-        AsyncStorage.setItem(KEYS.notifications, String(notifications)),
         AsyncStorage.setItem(KEYS.savedAt, timestamp),
       ]);
       setSavedAt(timestamp);
     } catch (e) {
       console.warn('Save settings failed', e);
+    } 
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await AsyncStorage.setItem('hasOnboarded', 'true');
+  
+      await signOut(auth);
+  
+      // Jump straight to Auth for Landing page at the root
+      const rootNav = navigation.getParent?.() ?? navigation;
+      rootNav.dispatch(
+        CommonActions.reset({
+          index: 0,
+          routes: [
+            {
+              name: 'Auth',
+              state: { routes: [{ name: 'Landing' }] },
+            },
+          ],
+        })
+      );
+    } catch (e) {
+      console.warn('Sign out failed', e);
     }
   };
 
@@ -114,11 +131,10 @@ export default function SettingsScreen({ navigation }) {
         {/* Permission card design */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>GLOBL. Permission form</Text>
-
           <View style={styles.row}>
             <SquareCheckbox checked={agreeFindable} onToggle={() => setAgreeFindable(v => !v)} />
             <Text style={styles.rowText}>
-              By ticking this you agree that GLOBL. users can find you via the email you signed up with.
+              By ticking this you agree that GLOBL. users can find you via Suggested Friends.
             </Text>
           </View>
 
@@ -130,30 +146,21 @@ export default function SettingsScreen({ navigation }) {
               Selecting incognito mode hides your profile from other GLOBL. users worldwide. You will not appear in friend suggestions.
             </Text>
           </View>
-
           <View style={styles.divider} />
-
-          <View style={styles.row}>
-            <SquareCheckbox checked={gps} onToggle={() => setGps(v => !v)} />
-            <Text style={styles.rowText}>
-              Tick this box if you accept GLOBL. using your device GPS to retrieve map data.
-            </Text>
-          </View>
-        </View>
-
-        {/* Notifications pill row */}
-        <View style={styles.pill}>
-          <Text style={[styles.pillText, { flex: 1 }]}>Notifications switched on</Text>
-          <SquareCheckbox checked={notifications} onToggle={() => setNotifications(v => !v)} size={26} />
         </View>
 
         {/* Save + Sign out actions */}
-        <Pressable style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.9 }]} onPress={saveAll}>
-          <Text style={styles.primaryText}>Save Settings</Text>
+        <Pressable 
+        style={({ pressed }) => [styles.primaryBtn, pressed && { opacity: 0.9 }]} onPress={saveAll}>
+          <Text style={styles.primaryText}>
+            Save Settings</Text>
         </Pressable>
 
-        <Pressable style={({ pressed }) => [styles.signOut, pressed && { opacity: 0.9 }]} onPress={() => navigation.navigate('SignIn')}>
-          <Text style={styles.signOutText}>Sign Out</Text>
+        <Pressable 
+          style={({ pressed }) => [styles.signOut, pressed && { opacity: 0.9 }]} 
+          onPress={handleSignOut}
+        >
+         <Text style={styles.signOutText}>Sign Out</Text>
         </Pressable>
 
         {/* Save confirmation */}
@@ -183,6 +190,13 @@ const styles = StyleSheet.create({
 
   content: { paddingHorizontal: 16, paddingBottom: 16, paddingTop: 30, gap: 14 },
 
+  savedNote: {
+    textAlign: 'center',
+    color: COLORS.white,
+    marginTop: 8,
+    fontSize: 12,
+  },
+  
   /* white permission card */
   card: {
     backgroundColor: COLORS.white,
@@ -204,18 +218,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
   rowText: { flex: 1, fontSize: 14, color: '#111827', lineHeight: 20 },
   divider: { height: 1, backgroundColor: COLORS.border, marginVertical: 12 },
-
-  /* notifications pill */
-  pill: {
-    backgroundColor: COLORS.white,
-    borderRadius: 14,
-    paddingVertical: 12,
-    paddingHorizontal: 14,
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  pillText: { fontSize: 15, color: '#111827', fontWeight: '600' },
-
+  
   /* actions */
   primaryBtn: {
     backgroundColor: COLORS.white,

@@ -1,5 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
 import GlobalHeatMapScreen from '../screens/MainGlobalHeatMapScreen';
 import ProfileScreen from '../screens/ProfileScreen'; 
 import LeaderBoardScreen from '../screens/BadgesScreen';
@@ -19,8 +20,8 @@ const Stack = createNativeStackNavigator();
 
 export default function AppStack() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="GlobalHeatmap" component={GlobalHeatMapScreen} />
+    <Stack.Navigator initialRouteName="GlobalHeatMap" screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="GlobalHeatMap" component={GlobalHeatMapScreen} />
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="LeaderBoard" component={LeaderBoardScreen} />
       <Stack.Screen name="CurrentLocation" component={UserLocationMapScreen}/>

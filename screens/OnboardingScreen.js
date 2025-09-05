@@ -3,8 +3,10 @@ import { SafeAreaView, ScrollView, StyleSheet, Alert } from 'react-native';
 import { Text, TextInput, Button } from 'react-native-paper';
 import { auth, db } from '../firebase';
 import { doc, setDoc } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions } from '@react-navigation/native';
 
-export default function OnboardingScreen() {
+export default function OnboardingScreen({ navigation }) {
   const [firstName, setFirstName] = useState('');
   const [age, setAge] = useState('');
   const [gender, setGender] = useState('');
@@ -16,6 +18,7 @@ export default function OnboardingScreen() {
       Alert.alert('Missing name', 'Please enter your first name.');
       return;
     }
+
     try {
       setSaving(true);
       const uid = auth.currentUser?.uid;
@@ -30,15 +33,31 @@ export default function OnboardingScreen() {
           avgKmPerWeek: avgKm ? Number(avgKm) : null,
           profileComplete: true
         },
-        { merge: true } // create if missing, update if exists
+        { merge: true } 
       );
-    } catch (e) {
-      Alert.alert('Error', e.message);
-    } finally {
-      setSaving(false);
-    }
-  };
 
+        // mark onboarding complete
+        await AsyncStorage.setItem('hasOnboarded', 'true');
+        // then reset to App so they land on GlobalHeatMap
+        navigation.getParent()?.reset({
+          index: 0,
+          routes: [{ name: 'App' }],
+        });
+        
+        const rootNav = navigation.getParent?.() ?? navigation;
+        rootNav.dispatch(
+          CommonActions.reset({
+           index: 0,
+           routes: [{ name: 'App' }],
+          })
+        );
+      } catch (e) {
+        Alert.alert('Error', e?.message ?? String(e));
+      } finally {
+        setSaving(false);
+      }
+    };
+  
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#DE1E26' }}>
       <ScrollView contentContainerStyle={s.wrap}>
