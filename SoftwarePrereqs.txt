@@ -1,0 +1,51 @@
+GLOBL Running App – Software Prerequisites
+==========================================
+
+1. Required Software
+--------------------
+- Node.js (v18.x LTS recommended)
+- npm (comes bundled with Node.js)
+- Expo CLI (latest) → install with: npm install -g expo-cli
+- Git (latest stable version)
+- VS Code (or any preferred IDE)
+- Expo Go app (for iOS or Android testing)
+
+2. Frameworks and Libraries
+----------------------------
+- React Native (0.74.x via Expo SDK 51)
+- React Navigation (7.x)
+- Firebase (Auth & Firestore modules)
+- AsyncStorage (@react-native-async-storage/async-storage v2.1.2)
+- Metro bundler (installed automatically with Expo)
+- Vector Icons (@expo/vector-icons 14.1.0)
+- Picker (@react-native-picker/picker 2.11.1)
+- Paper UI (react-native-paper)
+
+3. Optional Tools
+-----------------
+- Android Studio (for Android Emulator testing)
+- Xcode (for iOS Simulator, macOS only)
+- GitLab (for version control / repository hosting)
+
+4. Installation Steps
+---------------------
+1. Install Node.js and npm from https://nodejs.org
+2. Install Expo CLI globally:
+   npm install -g expo-cli
+3. Clone the project from GitLab:
+   git clone <your-repo-link>
+4. Navigate into the project folder:
+   cd GloblRunningApp
+5. Install dependencies:
+   npm install
+6. Start the development server:
+   npm start
+7. Open on a physical device using the Expo Go app (scan the QR code), 
+   or run on emulator/simulator if set up.
+
+5. Notes
+--------
+- Internet connection required for Expo Go testing.
+- Firebase configuration is included in the project’s config files.
+- Mapbox integration requires an access token (instructions in README).
+
