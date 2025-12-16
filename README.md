@@ -6,17 +6,9 @@ A React Native (Expo) app for social running: track progress, compare with frien
 - [Features](#features)
 - [Architecture](#architecture)
 - [Tech Stack](#tech-stack)
-- [Getting Started](#getting-started)
-- [Configuration](#configuration)
-- [Project Structure](#project-structure)
-- [Key Screens](#key-screens)
-- [Data & Storage](#data--storage)
-- [Development Notes](#development-notes)
-- [Branching & Git](#branching--git)
-- [Troubleshooting](#troubleshooting)
 - [Design (Figma)](#design-figma)
-- [Roadmap](#roadmap)
-- [License](#license)
+- [Getting Started](#getting-started)
+
 
 ---
 
@@ -65,6 +57,12 @@ A React Native (Expo) app for social running: track progress, compare with frien
 
 ---
 
+## Design (Figma)
+
+Explore the app UI and flows in Figma:  
+🔗 [View GLOBL UI on Figma](https://www.figma.com/design/QHLBErbPrzUSfvxefDz0Tu/GLOBL.-UI?node-id=1-39&t=viQfbbEorDK3c3lM-1)
+
+
 ## Getting Started
 
 ```bash
@@ -74,4 +72,6 @@ npm install
 # 2) Run (clearing Metro cache helps after big refactors)
 npx expo start -c
 
-# 3) Open on device/simulator from Expo Dev Tools
+# 3) Open on device/simulator from Expo Dev Tools 
+
+
